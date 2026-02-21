@@ -1,0 +1,281 @@
+.config-page {
+  max-width: 1000px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: var(--text-secondary);
+}
+
+.message {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.message.success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.message.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.config-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: var(--surface);
+  padding: 6px;
+  border-radius: 10px;
+  width: fit-content;
+}
+
+.config-tab {
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.config-tab:hover {
+  background: var(--bg);
+}
+
+.config-tab.active {
+  background: var(--primary);
+  color: white;
+}
+
+.credentials-warning {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.credentials-warning .warning-icon {
+  color: #d97706;
+  flex-shrink: 0;
+}
+
+.credentials-warning h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 4px;
+}
+
+.credentials-warning p {
+  font-size: 13px;
+  color: #b45309;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border-left: 4px solid var(--primary);
+}
+
+.status-bar.running {
+  border-left-color: var(--success);
+}
+
+.status-bar.stopped {
+  border-left-color: var(--text-secondary);
+}
+
+.status-bar .status-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.status-bar.running .status-icon {
+  background: #d1fae5;
+  color: var(--success);
+}
+
+.status-bar.stopped .status-icon {
+  background: var(--bg);
+  color: var(--text-secondary);
+}
+
+.status-bar .status-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.status-bar .status-info p {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.status-bar .status-actions {
+  margin-left: auto;
+}
+
+.job-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.job-status .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: pulse 1.5s infinite;
+}
+
+.log-window {
+  background: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #2d2d2d;
+  border-bottom: 1px solid #3d3d3d;
+}
+
+.log-header h4 {
+  color: #d4d4d4;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.log-header button {
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid #4d4d4d;
+  color: #9d9d9d;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.log-header button:hover {
+  background: #3d3d3d;
+}
+
+.log-content {
+  padding: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.log-line {
+  padding: 2px 0;
+  color: #808080;
+}
+
+.log-line.info {
+  color: #4fc1ff;
+}
+
+.log-line.success {
+  color: #4ec9b0;
+}
+
+.log-line.warning {
+  color: #dcdcaa;
+}
+
+.log-line.error {
+  color: #f48771;
+}
+
+.log-line.highlight {
+  color: #ce9178;
+}
+
+.history-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.history-filters input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.history-filters select {
+  min-width: 150px;
+}
+
+.history-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.history-actions button {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+
+.empty-state svg {
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.job-link {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.job-link:hover {
+  text-decoration: underline;
+}
