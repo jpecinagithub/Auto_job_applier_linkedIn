@@ -56,7 +56,7 @@ export interface SecretsConfig {
   llm_api_url: string;
   llm_api_key: string;
   llm_model: string;
-  llm_spec: string;
+  llm_spec?: string;
   stream_output: boolean;
 }
 

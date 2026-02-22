@@ -12,7 +12,6 @@ const defaultSecrets: SecretsConfig = {
   llm_api_url: 'https://generativelanguage.googleapis.com/v1beta/',
   llm_api_key: '',
   llm_model: 'gemini-2.0-pro',
-  llm_spec: '',
   stream_output: false,
 };
 
@@ -139,18 +138,18 @@ export function SecretsConfigPage() {
       <div className="form-section">
         <h3>Inteligencia Artificial (Opcional)</h3>
         <div className="form-grid">
-          <div className="form-group checkbox-label">
+          <div className="form-group checkbox-label" style={{ gridColumn: '1 / -1' }}>
             <input
               type="checkbox"
               checked={config.use_AI}
               onChange={(e) => setConfig(prev => ({ ...prev, use_AI: e.target.checked }))}
             />
-            Habilitar IA
+            Habilitar IA para selección de CV y respuestas automáticas
           </div>
 
           {config.use_AI && (
             <>
-              <div className="form-group">
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label>Proveedor de IA</label>
                 <select
                   value={config.ai_provider}
@@ -164,79 +163,74 @@ export function SecretsConfigPage() {
                 </select>
               </div>
 
-              <div className="form-group">
-                <label>URL de API</label>
-                <input
-                  type="text"
-                  value={config.llm_api_url}
-                  onChange={(e) => setConfig(prev => ({ ...prev, llm_api_url: e.target.value }))}
-                  placeholder="https://api.openai.com/v1/"
-                />
-              </div>
+              <div className="form-section" style={{ gridColumn: '1 / -1', padding: '16px', background: 'var(--bg-secondary)', borderRadius: '8px', marginTop: '8px' }}>
+                <h4 style={{ margin: '0 0 16px 0', fontSize: '14px', color: 'var(--text-secondary)' }}>
+                  Configuración de {config.ai_provider === 'gemini' ? 'Gemini' : config.ai_provider.toUpperCase()}
+                </h4>
+                
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>API Key</label>
+                    <input
+                      type="password"
+                      value={config.llm_api_key}
+                      onChange={(e) => setConfig(prev => ({ ...prev, llm_api_key: e.target.value }))}
+                      placeholder={config.ai_provider === 'gemini' ? 'AIza...' : 'sk-...'}
+                    />
+                  </div>
 
-              <div className="form-group">
-                <label>API Key</label>
-                <input
-                  type="password"
-                  value={config.llm_api_key}
-                  onChange={(e) => setConfig(prev => ({ ...prev, llm_api_key: e.target.value }))}
-                  placeholder="sk-..."
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Modelo</label>
-                {config.ai_provider === 'gemini' ? (
-                  <>
-                    <select
-                      value={geminiModels.some(m => m.value === config.llm_model) ? config.llm_model : 'custom'}
-                      onChange={(e) => setConfig(prev => ({ ...prev, llm_model: e.target.value }))}
-                    >
-                      {geminiModels.map(model => (
-                        <option key={model.value} value={model.value}>
-                          {model.label}
-                        </option>
-                      ))}
-                    </select>
-                    {!geminiModels.some(m => m.value === config.llm_model) && (
-                      <input
-                        type="text"
-                        value={config.llm_model}
+                  {config.ai_provider === 'gemini' && (
+                    <div className="form-group">
+                      <label>Modelo</label>
+                      <select
+                        value={geminiModels.some(m => m.value === config.llm_model) ? config.llm_model : 'custom'}
                         onChange={(e) => setConfig(prev => ({ ...prev, llm_model: e.target.value }))}
-                        placeholder="gemini-2.0-flash"
-                        style={{ marginTop: '8px' }}
-                      />
-                    )}
-                  </>
-                ) : (
+                      >
+                        {geminiModels.map(model => (
+                          <option key={model.value} value={model.value}>
+                            {model.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {config.ai_provider !== 'gemini' && (
+                    <>
+                      <div className="form-group">
+                        <label>Modelo</label>
+                        <input
+                          type="text"
+                          value={config.llm_model}
+                          onChange={(e) => setConfig(prev => ({ ...prev, llm_model: e.target.value }))}
+                          placeholder="gpt-3.5-turbo"
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>URL de API</label>
+                        <input
+                          type="text"
+                          value={config.llm_api_url}
+                          onChange={(e) => setConfig(prev => ({ ...prev, llm_api_url: e.target.value }))}
+                          placeholder="https://api.openai.com/v1/"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {config.ai_provider === 'gemini' && (
+                <div className="form-group checkbox-label" style={{ gridColumn: '1 / -1', marginTop: '8px' }}>
                   <input
-                    type="text"
-                    value={config.llm_model}
-                    onChange={(e) => setConfig(prev => ({ ...prev, llm_model: e.target.value }))}
-                    placeholder="gpt-3.5-turbo"
+                    type="checkbox"
+                    checked={config.stream_output}
+                    onChange={(e) => setConfig(prev => ({ ...prev, stream_output: e.target.checked }))}
                   />
-                )}
-              </div>
-
-              <div className="form-group">
-                <label>Especificación de API</label>
-                <select
-                  value={config.llm_spec}
-                  onChange={(e) => setConfig(prev => ({ ...prev, llm_spec: e.target.value }))}
-                >
-                  <option value="openai">OpenAI</option>
-                  <option value="openai-like">OpenAI Compatible</option>
-                </select>
-              </div>
-
-              <div className="form-group checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={config.stream_output}
-                  onChange={(e) => setConfig(prev => ({ ...prev, stream_output: e.target.checked }))}
-                />
-                Mostrar salida en streaming
-              </div>
+                  Mostrar salida en streaming
+                </div>
+              )}
             </>
           )}
         </div>
