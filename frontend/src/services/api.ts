@@ -75,6 +75,13 @@ export const configApi = {
   },
 };
 
+export const resumesApi = {
+  getAll: async (): Promise<string[]> => {
+    const response = await api.get('/resumes');
+    return response.data;
+  },
+};
+
 export const botApi = {
   start: async (config?: Partial<SearchConfig>) => {
     const response = await api.post('/bot/start', config);

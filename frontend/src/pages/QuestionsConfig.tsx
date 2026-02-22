@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Save, RotateCcw } from 'lucide-react';
-import { configApi } from '../services/api';
+import { configApi, resumesApi } from '../services/api';
 import type { QuestionsConfig } from '../types/config';
 import './ConfigForms.css';
 
@@ -13,7 +13,7 @@ const defaultQuestions: QuestionsConfig = {
   recent_employer: '',
   linkedin_headline: '',
   require_visa: 'No',
-  default_resume_path: 'all resumes/default/resume.pdf',
+  default_resume_path: '',
   overwrite_previous_answers: false,
   follow_previous_answers: true,
   pause_before_submit: false,
@@ -25,10 +25,21 @@ export function QuestionsConfigPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [resumes, setResumes] = useState<string[]>([]);
 
   useEffect(() => {
     loadConfig();
+    loadResumes();
   }, []);
+
+  const loadResumes = async () => {
+    try {
+      const data = await resumesApi.getAll();
+      setResumes(data);
+    } catch (error) {
+      console.error('Failed to load resumes:', error);
+    }
+  };
 
   const loadConfig = async () => {
     try {
@@ -169,13 +180,28 @@ export function QuestionsConfigPage() {
         <h3>Resume</h3>
         <div className="form-grid">
           <div className="form-group full-width">
-            <label>Ruta del resume por defecto</label>
-            <input
-              type="text"
-              value={config.default_resume_path}
-              onChange={(e) => setConfig(prev => ({ ...prev, default_resume_path: e.target.value }))}
-            />
-            <span className="hint">Ruta relativa desde la raíz del proyecto</span>
+            <label>Seleccionar Resume</label>
+            {resumes.length > 0 ? (
+              <select
+                value={config.default_resume_path}
+                onChange={(e) => setConfig(prev => ({ ...prev, default_resume_path: e.target.value }))}
+              >
+                <option value="">-- Selecciona un resume --</option>
+                {resumes.map((resume) => (
+                  <option key={resume} value={resume}>
+                    {resume}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={config.default_resume_path}
+                onChange={(e) => setConfig(prev => ({ ...prev, default_resume_path: e.target.value }))}
+                placeholder="resumes/mi-cv.pdf"
+              />
+            )}
+            <span className="hint">Selecciona un archivo de la carpeta resumes o escribe la ruta manualmente</span>
           </div>
         </div>
       </div>

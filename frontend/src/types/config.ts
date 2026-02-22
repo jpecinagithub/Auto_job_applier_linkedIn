@@ -42,6 +42,7 @@ export interface SearchConfig {
   about_company_bad_words: string[];
   about_company_good_words: string[];
   bad_words: string[];
+  exclude_locations: string[];
   security_clearance: boolean;
   did_masters: boolean;
   current_experience: number;

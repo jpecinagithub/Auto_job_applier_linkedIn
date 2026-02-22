@@ -31,6 +31,7 @@ const defaultSearch: SearchConfig = {
   about_company_bad_words: [],
   about_company_good_words: [],
   bad_words: [],
+  exclude_locations: ['UK', 'United Kingdom', 'England', 'Scotland', 'Wales', 'London', 'Manchester', 'Birmingham'],
   security_clearance: false,
   did_masters: true,
   current_experience: 5,
@@ -48,7 +49,7 @@ export function SearchConfigPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [tagInput, setTagInput] = useState({ search_terms: '', companies: '', bad_words: '', about_company_bad_words: '', about_company_good_words: '' });
+  const [tagInput, setTagInput] = useState({ search_terms: '', companies: '', bad_words: '', about_company_bad_words: '', about_company_good_words: '', exclude_locations: '' });
 
   useEffect(() => {
     loadConfig();
@@ -423,6 +424,26 @@ export function SearchConfigPage() {
               />
             </div>
             <span className="hint">Si la empresa tiene estas palabras, se saltará la verificación de palabras negativas</span>
+          </div>
+
+          <div className="form-group full-width">
+            <label>Ubicaciones a excluir (omitir empleos en estas ubicaciones)</label>
+            <div className="tag-input">
+              {config.exclude_locations.map((term, index) => (
+                <span key={index} className="tag">
+                  {term}
+                  <span className="tag-remove" onClick={() => removeTag('exclude_locations', index)}>×</span>
+                </span>
+              ))}
+              <input
+                type="text"
+                placeholder="Escribe y presiona Enter..."
+                value={tagInput.exclude_locations}
+                onChange={(e) => setTagInput(prev => ({ ...prev, exclude_locations: e.target.value }))}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleTagInput('exclude_locations', 'exclude_locations'))}
+              />
+            </div>
+            <span className="hint">El bot omitirá empleos en estas ubicaciones (ej: UK, London, United Kingdom)</span>
           </div>
         </div>
       </div>
