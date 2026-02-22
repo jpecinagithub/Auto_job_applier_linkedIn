@@ -12,7 +12,7 @@ const defaultSecrets: SecretsConfig = {
   llm_api_url: 'https://generativelanguage.googleapis.com/v1beta/',
   llm_api_key: '',
   llm_model: 'gemini-2.0-pro',
-  llm_spec: 'openai',
+  llm_spec: '',
   stream_output: false,
 };
 
