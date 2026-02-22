@@ -5,18 +5,27 @@ import type { SecretsConfig } from '../types/config';
 import './ConfigForms.css';
 
 const defaultSecrets: SecretsConfig = {
-  username: 'jpecina@gmail.com',
-  password: '44wu7abs?',
-  use_AI: true,
+  username: '',
+  password: '',
+  use_AI: false,
   ai_provider: 'gemini',
   llm_api_url: 'https://generativelanguage.googleapis.com/v1beta/',
-  llm_api_key: 'AIzaSyAsAVOAcZ8J058boa8jVqT3nl0brehba6U',
-  llm_model: 'gemini-2.0-flash',
+  llm_api_key: '',
+  llm_model: 'gemini-2.0-pro',
   llm_spec: 'openai',
   stream_output: false,
 };
 
 const aiProviders = ['openai', 'deepseek', 'gemini'];
+
+const geminiModels = [
+  { value: 'gemini-2.0-pro', label: 'Gemini 2.0 Pro (Recommended)' },
+  { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
+  { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
+  { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
+  { value: 'gemini-1.5-flash-8b', label: 'Gemini 1.5 Flash 8B' },
+  { value: 'custom', label: 'Otro (especificar)' },
+];
 
 export function SecretsConfigPage() {
   const [config, setConfig] = useState<SecretsConfig>(defaultSecrets);
@@ -177,12 +186,36 @@ export function SecretsConfigPage() {
 
               <div className="form-group">
                 <label>Modelo</label>
-                <input
-                  type="text"
-                  value={config.llm_model}
-                  onChange={(e) => setConfig(prev => ({ ...prev, llm_model: e.target.value }))}
-                  placeholder="gpt-3.5-turbo"
-                />
+                {config.ai_provider === 'gemini' ? (
+                  <>
+                    <select
+                      value={geminiModels.some(m => m.value === config.llm_model) ? config.llm_model : 'custom'}
+                      onChange={(e) => setConfig(prev => ({ ...prev, llm_model: e.target.value }))}
+                    >
+                      {geminiModels.map(model => (
+                        <option key={model.value} value={model.value}>
+                          {model.label}
+                        </option>
+                      ))}
+                    </select>
+                    {!geminiModels.some(m => m.value === config.llm_model) && (
+                      <input
+                        type="text"
+                        value={config.llm_model}
+                        onChange={(e) => setConfig(prev => ({ ...prev, llm_model: e.target.value }))}
+                        placeholder="gemini-2.0-flash"
+                        style={{ marginTop: '8px' }}
+                      />
+                    )}
+                  </>
+                ) : (
+                  <input
+                    type="text"
+                    value={config.llm_model}
+                    onChange={(e) => setConfig(prev => ({ ...prev, llm_model: e.target.value }))}
+                    placeholder="gpt-3.5-turbo"
+                  />
+                )}
               </div>
 
               <div className="form-group">

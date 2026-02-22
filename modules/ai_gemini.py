@@ -1,5 +1,6 @@
 import os
 import json
+import google.generativeai as genai
 
 
 def get_resume_files():
@@ -24,12 +25,14 @@ def find_best_cv(job_title, job_description, resume_files):
     Returns the best resume path and a score
     """
     try:
-        import google.genai as genai
+        from config.secrets import llm_api_key, llm_model
 
-        # Get API key from config
-        from config.secrets import llm_api_key
+        if not llm_api_key:
+            print("[AI CV Matching] No API key configured")
+            return resume_files[0] if resume_files else ""
 
-        client = genai.Client(api_key=llm_api_key)
+        genai.configure(api_key=llm_api_key)
+        model = genai.GenerativeModel(llm_model)
 
         prompt = f"""Based on the job title and description, select the best CV from the list below.
 
@@ -44,10 +47,7 @@ Return ONLY the filename of the best CV (e.g., "resumes/finance-manager.pdf").
 If none seem relevant, return the first CV in the list.
 Keep it short - just one line with the filename."""
 
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt,
-        )
+        response = model.generate_content(prompt)
 
         best_cv = response.text.strip()
 
@@ -75,7 +75,6 @@ Keep it short - just one line with the filename."""
             cv_name = cv.lower()
             score = 0
 
-            # Simple keyword matching
             keywords = [
                 "finance",
                 "accounting",
@@ -105,10 +104,14 @@ def generate_ai_response(prompt, context=""):
     Use Gemini to generate a response for a question
     """
     try:
-        import google.genai as genai
-        from config.secrets import llm_api_key
+        from config.secrets import llm_api_key, llm_model
 
-        client = genai.Client(api_key=llm_api_key)
+        if not llm_api_key:
+            print("[AI Response] No API key configured")
+            return ""
+
+        genai.configure(api_key=llm_api_key)
+        model = genai.GenerativeModel(llm_model)
 
         full_prompt = f"""{context}
 
@@ -116,10 +119,7 @@ Question: {prompt}
 
 Provide a brief, professional answer (1-2 sentences max)."""
 
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=full_prompt,
-        )
+        response = model.generate_content(full_prompt)
 
         return response.text.strip()
 
@@ -134,10 +134,19 @@ def analyze_job_with_ai(job_title, job_description, company_name):
     Returns dict with insights
     """
     try:
-        import google.genai as genai
-        from config.secrets import llm_api_key
+        from config.secrets import llm_api_key, llm_model
 
-        client = genai.Client(api_key=llm_api_key)
+        if not llm_api_key:
+            print("[AI Job Analysis] No API key configured")
+            return {
+                "required_skills": [],
+                "experience_level": "mid",
+                "key_responsibilities": [],
+                "fit_score": 5,
+            }
+
+        genai.configure(api_key=llm_api_key)
+        model = genai.GenerativeModel(llm_model)
 
         prompt = f"""Analyze this job posting and provide insights:
 
@@ -153,10 +162,7 @@ Return a JSON with:
 
 Return ONLY valid JSON, no other text."""
 
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt,
-        )
+        response = model.generate_content(prompt)
 
         # Parse JSON response
         try:
