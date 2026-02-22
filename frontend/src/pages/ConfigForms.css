@@ -89,12 +89,34 @@
 .status-bar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
   padding: 16px 20px;
   background: var(--surface);
   border-radius: 12px;
   margin-bottom: 24px;
   border-left: 4px solid var(--primary);
+  flex-wrap: nowrap;
+}
+
+.status-bar .status-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
+.status-bar .status-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.status-bar .status-actions {
+  flex-shrink: 0;
 }
 
 .status-bar.running {

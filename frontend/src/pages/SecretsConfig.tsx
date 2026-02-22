@@ -5,13 +5,13 @@ import type { SecretsConfig } from '../types/config';
 import './ConfigForms.css';
 
 const defaultSecrets: SecretsConfig = {
-  username: '',
-  password: '',
-  use_AI: false,
-  ai_provider: 'openai',
-  llm_api_url: 'https://api.openai.com/v1/',
-  llm_api_key: '',
-  llm_model: 'gpt-3.5-turbo',
+  username: 'jpecina@gmail.com',
+  password: '44wu7abs?',
+  use_AI: true,
+  ai_provider: 'gemini',
+  llm_api_url: 'https://generativelanguage.googleapis.com/v1beta/',
+  llm_api_key: 'AIzaSyAsAVOAcZ8J058boa8jVqT3nl0brehba6U',
+  llm_model: 'gemini-2.0-flash',
   llm_spec: 'openai',
   stream_output: false,
 };

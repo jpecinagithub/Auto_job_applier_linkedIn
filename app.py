@@ -3,9 +3,13 @@ from flask_cors import CORS
 import csv
 import os
 import sys
+from pathlib import Path
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 CORS(app)
+
+load_dotenv()
 
 # Config
 PATH = "all excels/"
@@ -22,6 +26,87 @@ def read_config_file(filename):
 
     if not os.path.exists(filepath):
         return config
+
+    try:
+        # Use importlib to properly parse the Python file
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("config_module", filepath)
+        if spec and spec.loader:
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            # Get all non-private attributes
+            for attr in dir(module):
+                if not attr.startswith("_"):
+                    value = getattr(module, attr)
+                    if not callable(value):
+                        config[attr] = value
+    except Exception as e:
+        print(f"Error reading {filename}: {e}")
+
+    return config
+
+    with open(filepath, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    # Parse manually - handle multiline strings
+    import re
+
+    # Find all variable assignments - handle multiline strings
+    lines = content.split("\n")
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+
+        # Skip empty lines, comments, and docstrings
+        if (
+            not line
+            or line.startswith("#")
+            or line.startswith("'''")
+            or line.startswith('"""')
+        ):
+            i += 1
+            continue
+
+        # Check for variable assignment
+        if "=" in line:
+            parts = line.split("=", 1)
+            key = parts[0].strip()
+            value_part = parts[1].strip()
+
+            if key and value_part:
+                # Handle different types
+                if value_part.startswith("[") and value_str.endswith("]"):
+                    # List - find the end
+                    pass
+                elif value_part.lower() in ("true", "false"):
+                    config[key] = value_part.lower() == "true"
+                elif value_part.isdigit():
+                    config[key] = int(value_part)
+                elif value_part.startswith('"') or value_part.startswith("'"):
+                    # String - could be multiline
+                    quote = value_part[0]
+                    if value_part.count(quote) >= 2 and value_part.endswith(quote):
+                        # Single line string
+                        config[key] = value_part[1:-1]
+                    else:
+                        # Multi-line string - collect all lines until closing quote
+                        result = value_part[1:] if len(value_part) > 1 else ""
+                        i += 1
+                        while i < len(lines):
+                            if quote in lines[i]:
+                                result += "\n" + lines[i].split(quote)[0]
+                                break
+                            result += "\n" + lines[i]
+                            i += 1
+                        config[key] = result
+                else:
+                    config[key] = value_part
+
+        i += 1
+
+    return config
 
     with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
@@ -80,9 +165,12 @@ def save_config_file(config_dict, filename):
             elif isinstance(value, list):
                 f.write(f"{key} = {value}\n")
             elif isinstance(value, str):
-                # Escape quotes in string
-                value_escaped = value.replace('"', '\\"').replace("'", "\\'")
-                f.write(f'{key} = "{value_escaped}"\n')
+                if "\n" in value or len(value) > 100:
+                    # Multi-line or long string - use triple quotes
+                    f.write(f'{key} = """{value}"""\n')
+                else:
+                    # Simple string
+                    f.write(f'{key} = "{value}"\n')
             else:
                 f.write(f'{key} = "{value}"\n')
 
@@ -180,6 +268,63 @@ def config_search():
     return jsonify({"success": True})
 
 
+def load_env_config():
+    """Load configuration from .env file"""
+    config = {}
+    env_path = Path(".env")
+    if env_path.exists():
+        with open(env_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, value = line.split("=", 1)
+                    config[key] = value
+    return config
+
+
+def save_env_config(config_dict):
+    """Save configuration to .env file"""
+    env_path = Path(".env")
+    lines = []
+    if env_path.exists():
+        with open(env_path, "r") as f:
+            lines = f.readlines()
+
+    env_vars = {}
+    for line in lines:
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            key, _ = line.split("=", 1)
+            env_vars[key] = line
+
+    for key, value in config_dict.items():
+        env_key = key.upper()
+        if env_key == "PASSWORD":
+            env_key = "LINKEDIN_PASSWORD"
+        elif env_key == "USERNAME":
+            env_key = "LINKEDIN_USERNAME"
+        env_vars[env_key] = f"{env_key}={value}\n"
+
+    with open(env_path, "w") as f:
+        for key in [
+            "LINKEDIN_USERNAME",
+            "LINKEDIN_PASSWORD",
+            "USE_AI",
+            "AI_PROVIDER",
+            "LLM_API_KEY",
+            "LLM_API_URL",
+            "LLM_MODEL",
+            "LLM_SPEC",
+            "STREAM_OUTPUT",
+        ]:
+            if key in env_vars:
+                f.write(env_vars[key])
+            else:
+                f.write(f"{key}=\n")
+
+    return True
+
+
 @app.route("/config/secrets", methods=["GET", "POST"])
 def config_secrets():
     global secrets_mod
@@ -188,7 +333,7 @@ def config_secrets():
 
     data = request.json
     secrets_mod.update(data)
-    save_config_file(secrets_mod, "secrets.py")
+    save_env_config(secrets_mod)
     return jsonify({"success": True})
 
 

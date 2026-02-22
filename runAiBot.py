@@ -56,6 +56,7 @@ from modules.helpers import *
 from modules.clickers_and_finders import *
 from modules.validator import validate_config
 
+# Import AI modules
 if use_AI:
     from modules.ai.openaiConnections import (
         ai_create_openai_client,
@@ -72,6 +73,14 @@ if use_AI:
         gemini_create_client,
         gemini_extract_skills,
         gemini_answer_question,
+    )
+
+    # Import our custom Gemini AI module
+    from modules.ai_gemini import (
+        find_best_cv,
+        generate_ai_response,
+        analyze_job_with_ai,
+        get_resume_files,
     )
 
 from typing import Literal
@@ -1473,15 +1482,25 @@ def answer_questions(
                                     user_information_all=user_information_all,
                                 )
                             elif ai_provider.lower() == "gemini":
-                                answer = gemini_answer_question(
-                                    aiClient,
-                                    label_org,
-                                    options=None,
-                                    question_type="text",
-                                    job_description=job_description,
-                                    about_company=None,
-                                    user_information_all=user_information_all,
-                                )
+                                # Try custom Gemini AI first with user's API key
+                                try:
+                                    answer = generate_ai_response(
+                                        prompt=label_org,
+                                        context=f"Job: {title} at {company}. Description: {description[:500] if description else ''}. User info: {user_information_all[:500] if user_information_all else ''}",
+                                    )
+                                    if not answer:
+                                        raise Exception("Empty response from custom AI")
+                                except:
+                                    # Fallback to existing Gemini module
+                                    answer = gemini_answer_question(
+                                        aiClient,
+                                        label_org,
+                                        options=None,
+                                        question_type="text",
+                                        job_description=job_description,
+                                        about_company=None,
+                                        user_information_all=user_information_all,
+                                    )
                             else:
                                 randomly_answered_questions.add((label_org, "text"))
                                 answer = years_of_experience
@@ -1855,7 +1874,7 @@ def discard_job() -> None:
 # Function to apply to jobs
 def apply_to_jobs(search_terms: list[str]) -> None:
     applied_jobs = get_applied_job_ids()
-    rejected_jobs = set()
+    rejected_jobs = set(applied_jobs)  # Include already applied jobs to skip them
     blacklisted_companies = set()
     global \
         current_city, \
@@ -2223,9 +2242,35 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                         work_location,
                                         job_description=description,
                                     )
+
+                                    # AI-powered CV selection
+                                    selected_resume = default_resume_path
+                                    if use_AI and ai_provider.lower() == "gemini":
+                                        try:
+                                            print_lg(
+                                                "AI: Finding best CV for this job..."
+                                            )
+                                            resume_files = get_resume_files()
+                                            if resume_files:
+                                                selected_resume = find_best_cv(
+                                                    title,
+                                                    description or "",
+                                                    resume_files,
+                                                )
+                                                print_lg(
+                                                    f"AI: Selected CV: {selected_resume}"
+                                                )
+                                            else:
+                                                selected_resume = default_resume_path
+                                        except Exception as e:
+                                            print_lg(f"AI CV selection error: {e}")
+                                            selected_resume = default_resume_path
+                                    else:
+                                        selected_resume = default_resume_path
+
                                     if useNewResume and not uploaded:
                                         uploaded, resume = upload_resume(
-                                            modal, default_resume_path
+                                            modal, selected_resume
                                         )
                                     try:
                                         next_button = modal.find_element(

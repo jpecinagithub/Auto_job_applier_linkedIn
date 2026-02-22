@@ -340,10 +340,12 @@ body {
 }
 
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   gap: 16px;
   margin-bottom: 24px;
+  flex-wrap: nowrap;
 }
 
 .stat-card {
@@ -351,6 +353,8 @@ body {
   padding: 20px;
   border-radius: 12px;
   text-align: center;
+  min-width: 120px;
+  flex: 1;
 }
 
 .stat-value {
