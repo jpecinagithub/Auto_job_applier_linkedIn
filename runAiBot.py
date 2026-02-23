@@ -2421,6 +2421,10 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                     else:
                         external_jobs_count += 1
                     applied_jobs.add(job_id)
+                    print_lg(
+                        "Waiting 30 seconds before the next application to reduce LinkedIn automation risk..."
+                    )
+                    time.sleep(30)
 
                 # Switching to next page
                 if pagination_element == None:

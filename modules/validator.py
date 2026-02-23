@@ -253,31 +253,39 @@ def validate_secrets() -> None | ValueError | TypeError:
     check_string(password, "password", min_length=5)
 
     check_boolean(use_AI, "use_AI")
-    check_string(llm_api_url, "llm_api_url", min_length=5)
-    check_string(llm_api_key, "llm_api_key")
-    # check_string(llm_embedding_model, "llm_embedding_model")
-    check_boolean(stream_output, "stream_output")
+    if use_AI:
+        check_string(llm_api_url, "llm_api_url", min_length=5)
+        check_string(llm_api_key, "llm_api_key")
+        # check_string(llm_embedding_model, "llm_embedding_model")
+        check_boolean(stream_output, "stream_output")
 
-    ##> ------ Yang Li : MARKYangL - Feature ------
-    # Validate AI provider configuration
-    check_string(ai_provider, "ai_provider", ["openai", "deepseek", "gemini"])
+        ##> ------ Yang Li : MARKYangL - Feature ------
+        # Validate AI provider configuration
+        check_string(ai_provider, "ai_provider", ["openai", "deepseek", "gemini"])
 
-    ##> ------ Tim L : tulxoro - Refactor ------
-    if ai_provider == "deepseek":
-        check_string(
-            llm_model, "deepseek_model", ["deepseek-chat", "deepseek-reasoner"]
-        )
-    elif ai_provider == "gemini":
-        check_string(
-            llm_model,
-            "gemini_model",
-            ["gemini-2.0-flash", "gemini-1.5-pro", "gemini-pro"],
-        )
-    else:
-        check_string(llm_model, "llm_model")
-    ##<
+        ##> ------ Tim L : tulxoro - Refactor ------
+        if ai_provider == "deepseek":
+            check_string(
+                llm_model, "deepseek_model", ["deepseek-chat", "deepseek-reasoner"]
+            )
+        elif ai_provider == "gemini":
+            check_string(
+                llm_model,
+                "gemini_model",
+                [
+                    "gemini-2.0-pro",
+                    "gemini-2.0-flash",
+                    "gemini-1.5-pro",
+                    "gemini-1.5-flash",
+                    "gemini-1.5-flash-8b",
+                    "gemini-pro",
+                ],
+            )
+        else:
+            check_string(llm_model, "llm_model")
+        ##<
 
-    ##<
+        ##<
 
 
 from config.settings import *
