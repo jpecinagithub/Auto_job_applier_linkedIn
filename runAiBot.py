@@ -2018,13 +2018,17 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                         work_location_lower = (
                             work_location.lower() if work_location else ""
                         )
+                        is_excluded_location = False
                         for exclude_loc in exclude_locations:
                             if exclude_loc.lower() in work_location_lower:
                                 print_lg(
                                     f'Skipping job in "{work_location}" - Excluded location "{exclude_loc}". Job ID: {job_id}'
                                 )
                                 skip_count += 1
-                                continue
+                                is_excluded_location = True
+                                break
+                        if is_excluded_location:
+                            continue
 
                     if skip:
                         continue
